@@ -136,6 +136,61 @@ require("lazy").setup({
 
 這樣你就有一個可以擴充的起點，但還不需要一次把所有工具都裝上。
 
+## 第一套常用插件
+
+如果你想要先補齊最實用的一組工具，可以從這些開始：
+
+- `nvim-lua/plenary.nvim`：很多插件會共用的 Lua 工具庫
+- `nvim-telescope/telescope.nvim`：快速找檔案、搜尋文字、查 help
+- `nvim-treesitter/nvim-treesitter`：更好的語法解析與高亮
+- `neovim/nvim-lspconfig`：把 LSP 接到 Neovim
+- `williamboman/mason.nvim`：管理 LSP、formatters、linters
+- `stevearc/conform.nvim`：格式化文件
+- `lewis6991/gitsigns.nvim`：顯示 Git diff、hunk 與 blame
+
+一個很小的起步版本可以像這樣：
+
+```lua
+require("lazy").setup({
+  { "nvim-lua/plenary.nvim" },
+  { "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
+  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+  { "neovim/nvim-lspconfig" },
+  { "williamboman/mason.nvim" },
+  { "stevearc/conform.nvim" },
+  { "lewis6991/gitsigns.nvim" },
+})
+```
+
+這份清單不追求「一次裝滿」，而是先讓你有：
+
+- 檔案搜尋
+- 語法感知
+- LSP
+- 格式化
+- Git 視覺化
+
+## 安裝後的快捷鍵入門
+
+如果你剛開始學，先記住這幾組就夠用了：
+
+- `i`：進入插入模式
+- `Esc`：回到 normal mode
+- `:w`：儲存
+- `:q`：離開視窗
+- `:wq`：儲存後離開
+- `<leader>w`：儲存檔案（如果你沿用上面的設定）
+- `<leader>q`：關閉視窗
+- `h j k l`：上下左右移動
+- `gg` / `G`：跳到檔案開頭或結尾
+- `dd`：刪除一整行
+- `yy`：複製一整行
+- `p`：貼上
+- `/`：搜尋文字
+- `n` / `N`：切換下一個 / 上一個搜尋結果
+
+這些先熟，就可以開始穩定地寫東西了。
+
 ## 第一次打開 Neovim 後的檢查清單
 
 如果你剛安裝完，建議先做這幾件事：
