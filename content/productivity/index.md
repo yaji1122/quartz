@@ -17,6 +17,7 @@ draft: false
 ## 文章
 
 - [Neovim 實戰指南系列](neovim/)
+  - 從 [安裝與初始設定](neovim/getting-started/) 開始最順
 
 ## 後續規劃
 

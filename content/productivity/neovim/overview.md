@@ -43,8 +43,9 @@ Neovim 很適合開發，因為它介於極簡與可擴充之間。
 
 ## 下一步
 
-如果你已經有基本概念，可以接著看：
+如果你剛開始接觸 Neovim，可以先從這裡開始：
 
+- [安裝與初始設定](../getting-started/)
 - [LSP 與 Tree-sitter](../lsp-tree-sitter/)
 - [搜尋、格式化與 Git 整合](../tooling/)
 - [工作流、keymap 與設定策略](../workflow-config/)
