@@ -63,6 +63,91 @@ vim.opt.undofile = true
 - **indent 設定**：維持一致縮排
 - **undofile**：關掉編輯器後還能保留復原歷史
 
+## 一個完整但簡單的 `init.lua`
+
+如果你想要能直接開始用，可以先從這份版本出發：
+
+```lua
+vim.g.mapleader = " "
+
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.mouse = "a"
+vim.opt.clipboard = "unnamedplus"
+vim.opt.termguicolors = true
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 2
+vim.opt.tabstop = 2
+vim.opt.smartindent = true
+vim.opt.wrap = false
+vim.opt.undofile = true
+vim.opt.signcolumn = "yes"
+vim.opt.splitright = true
+vim.opt.splitbelow = true
+
+vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save file" })
+vim.keymap.set("n", "<leader>q", ":q<CR>", { desc = "Quit window" })
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+```
+
+這份設定的重點是：
+
+- 保留最基本、最常用的編輯體驗
+- 先有容易記的快捷鍵
+- 不依賴任何插件也能開始工作
+
+## 最基本的 plugin manager
+
+等你確認 Neovim 可以穩定啟動之後，再加 plugin manager 會比較順。
+
+現在很多人會選 `lazy.nvim`，因為它設定簡單、速度也不錯。
+
+### 安裝 `lazy.nvim`
+
+先把它放進標準路徑：
+
+```bash
+mkdir -p ~/.local/share/nvim/lazy
+cd ~/.local/share/nvim/lazy
+git clone https://github.com/folke/lazy.nvim.git
+```
+
+### 在 `init.lua` 裡載入
+
+```lua
+vim.g.mapleader = " "
+
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({
+  -- 先把插件放這裡，之後再慢慢加
+})
+```
+
+這樣你就有一個可以擴充的起點，但還不需要一次把所有工具都裝上。
+
+## 第一次打開 Neovim 後的檢查清單
+
+如果你剛安裝完，建議先做這幾件事：
+
+- 執行 `nvim --version` 確認版本正常
+- 用 `nvim` 打開編輯器，確定不會報錯退出
+- 執行 `:echo stdpath('config')` 確認設定目錄
+- 執行 `:checkhealth` 看系統依賴是否完整
+- 開一個文字檔，確認儲存、關閉、重開都正常
+
+如果這幾步都沒問題，就可以開始慢慢加插件和語言工具了。
+
 ## 建議的初始順序
 
 如果你是第一次接觸 Neovim，可以照這個順序來：
@@ -70,8 +155,9 @@ vim.opt.undofile = true
 1. 先安裝 Neovim
 2. 建立 `init.lua`
 3. 先放幾個基本 `vim.opt` 設定
-4. 熟悉基本移動、寫入、關閉、分割視窗
-5. 再慢慢加插件
+4. 確認編輯、儲存、關閉都正常
+5. 再加入 plugin manager
+6. 最後才慢慢加插件
 
 這樣比較不會一開始就被插件和設定淹沒。
 
