@@ -1,222 +1,222 @@
 ---
-title: "Coding with Neovim: a practical guide"
+title: "使用 Neovim 寫程式：實戰指南"
 date: 2026-05-21
 tags: [neovim, vim, editor, productivity, lsp, treesitter, debugging]
 draft: false
 ---
 
-## Summary
+## 摘要
 
-Neovim works best for coding when you treat it as a *modular editing platform*, not just a text editor. The core idea is simple:
+Neovim 最適合寫程式的方式，不是把它當成一般文字編輯器，而是把它當成一個*模組化的編輯平台*。核心思路很簡單：
 
-- let the built-in editing model do the heavy lifting
-- add language intelligence where it matters
-- keep the configuration small enough that you can actually remember it
-- make the editor support your workflow instead of forcing you into plugin sprawl
+- 讓內建的編輯模型負責最重要的工作
+- 在真正需要的地方補上語言智慧
+- 保持設定夠小，讓你自己記得住
+- 讓編輯器配合你的工作流程，而不是把你拖進一堆插件泥沼
 
-A good Neovim setup for coding usually combines:
+一套實用的 Neovim 寫程式環境，通常會包含：
 
-- **native LSP** for navigation, diagnostics, hover, rename, and code actions
-- **Tree-sitter** for better parsing and syntax awareness
-- **a fuzzy finder** for files, symbols, and project search
-- **a formatter** that runs consistently on save
-- **Git integration** for hunks, blame, and review
-- **a debugger** when print statements stop being enough
+- **原生 LSP**：負責導覽、診斷、hover、重新命名與 code action
+- **Tree-sitter**：提供更好的解析與語法感知
+- **模糊搜尋器**：快速找檔案、符號與專案內容
+- **格式化工具**：穩定地在儲存時自動格式化
+- **Git 整合**：檢視 hunks、blame 與變更審查
+- **除錯器**：當 `print` 不夠用時派上用場
 
-The goal is not to recreate an IDE feature-for-feature. The goal is to create a fast, predictable, keyboard-first environment that makes code changes cheaper.
+目標不是 1:1 複製 IDE，而是打造一個快速、可預測、以鍵盤為中心的環境，讓改 code 的成本更低。
 
-## Why Neovim is good for coding
+## 為什麼 Neovim 適合寫程式
 
-Neovim is strong for development because it sits in a sweet spot between minimalism and extensibility.
+Neovim 很適合開發，因為它介於極簡與可擴充之間。
 
-- It is fast and scriptable.
-- It gives you precise control over keymaps and behavior.
-- It supports modern language tooling without hiding the underlying text model.
-- It scales well from small scripts to large monorepos.
+- 它速度快，而且可腳本化。
+- 你可以精準控制 keymap 與行為。
+- 它支援現代語言工具，但不會遮住底層文字模型。
+- 從小腳本到大型 monorepo 都能順手使用。
 
-The big payoff is *edit locality*. Once you learn motions, text objects, and a few LSP commands, you spend less time reaching for the mouse and less time waiting on heavy UI layers.
+真正的優勢是 *edit locality*。當你熟悉 motions、text objects 與幾個 LSP 指令後，你會更少去碰滑鼠，也更少被笨重 UI 拖慢。
 
-## The mental model that matters
+## 最重要的心智模型
 
-If you want to code efficiently in Neovim, learn these concepts first:
+如果你想有效率地用 Neovim 寫程式，先學這些概念：
 
-- **Buffers**: the text you are editing
-- **Windows**: views into buffers
-- **Tabs**: layout containers, not browser tabs
-- **Operators + motions**: the core grammar of Vim editing
-- **Text objects**: edit logical units like a function, paragraph, quote, or parameter list
-- **Registers**: named clipboard slots for yanks and macros
-- **Macros**: repeatable recorded edits
+- **Buffers**：正在編輯的文字內容
+- **Windows**：同一個 buffer 的不同視窗
+- **Tabs**：版面容器，不是瀏覽器分頁
+- **Operators + motions**：Vim 編輯的核心語法
+- **Text objects**：以 function、段落、引號、參數列表這類邏輯單位來操作
+- **Registers**：可命名的剪貼簿槽位，用來 yank 與 macro
+- **Macros**：可重複錄製的編輯動作
 
-Once these click, the rest of the editor becomes much easier to reason about.
+這些概念一旦通了，後面的功能就會更容易理解。
 
-## A modern coding stack
+## 現代化寫程式工具鏈
 
-A practical Neovim coding setup usually looks like this:
+一套實用的 Neovim 寫程式環境，通常長這樣：
 
-### 1. Core editor settings
+### 1. 核心編輯器設定
 
-Start with a few settings that improve day-to-day coding:
+先放幾個能改善日常手感的設定：
 
-- line numbers and relative numbers
-- a visible sign column
-- sensible search behavior
-- split behavior that matches how you work
-- a short update time for diagnostics and git signs
+- 行號與相對行號
+- 明顯的 sign column
+- 合理的搜尋行為
+- 符合你習慣的 split 方向
+- 較短的 diagnostics 與 git signs 更新時間
 
-### 2. Native LSP for language intelligence
+### 2. 原生 LSP：語言智慧的基礎
 
-Neovim’s built-in LSP client gives you the foundation for modern language workflows.
+Neovim 內建的 LSP client，是現代語言工作流的核心。
 
-The important parts are:
+最重要的功能包括：
 
-- **jump to definition / declaration / references**
-- **hover documentation**
-- **rename symbol**
+- **跳到定義 / 宣告 / 參考**
+- **hover 文件**
+- **重新命名 symbol**
 - **code actions**
 - **diagnostics**
-- **formatting hooks**
-- **completion integration**
+- **格式化整合**
+- **completion 整合**
 
-Neovim’s docs note that LSP attachment can set buffer-local defaults such as:
+Neovim 文件提到，LSP attach 後可以設定一些 buffer-local 預設，例如：
 
-- `omnifunc` for insert-mode completion
-- `tagfunc` for navigation commands like `CTRL-]`
-- `formatexpr` for `gq`-style formatting
-- hover on `K`
+- `omnifunc`：插入模式 completion
+- `tagfunc`：支援 `CTRL-]` 這類導覽命令
+- `formatexpr`：支援 `gq` 類格式化
+- `K`：顯示 hover 說明
 
-That means the editor can expose language features directly through familiar Vim behavior instead of requiring a separate UI layer.
+這代表你可以把語言功能直接接到熟悉的 Vim 行為上，而不是再加一層獨立介面。
 
-A strong habit is to attach your keymaps in `LspAttach`, so language-specific mappings only exist when a server is actually active.
+一個很好的習慣是把 LSP keymap 掛在 `LspAttach`，這樣只有在語言伺服器真的連上時，那些按鍵才會存在。
 
-### 3. Tree-sitter for structure-aware editing
+### 3. Tree-sitter：讓編輯器懂結構
 
-Tree-sitter gives Neovim incremental parsing for buffers and supports richer syntax highlighting and structural awareness.
+Tree-sitter 讓 Neovim 對 buffer 做增量解析，並提供更精準的語法高亮與結構感知。
 
-In practice, Tree-sitter helps with:
+實務上它能幫你：
 
-- more accurate highlighting
-- better indentation in many languages
-- structural text objects
+- 更準確的語法高亮
+- 許多語言更好的縮排
+- 結構化 text objects
 - incremental selection
-- safer code navigation in nested syntax
+- 在巢狀語法中更安全地導覽程式碼
 
-For coding, it is especially useful in languages with complex nesting, embedded syntax, or lots of punctuation.
+對於巢狀很深、嵌入語法很多、標點很多的語言，Tree-sitter 特別有用。
 
-### 4. Fuzzy finding for project navigation
+### 4. 模糊搜尋：專案導航的核心
 
-A fuzzy finder turns file and symbol lookup from a chore into a reflex.
+模糊搜尋器會把找檔案與找符號從苦差事變成反射動作。
 
-The most useful searches are:
+最常用的搜尋包括：
 
-- files in the current project
-- text search across the repo
-- open buffers
-- LSP symbols in the current file
+- 專案內檔案
+- repo 全文搜尋
+- 已開啟 buffers
+- 當前檔案的 LSP symbols
 - diagnostics
-- recent files
+- 最近開啟的檔案
 
-`Telescope` is a popular option because it is a highly extensible fuzzy finder with built-in pickers, sorters, and previewers. Its README currently notes a Neovim requirement of **0.11.7 or newer** built with **LuaJIT**.
+`Telescope` 是很常見的選擇，因為它是一個高度可擴充的 fuzzy finder，內建 pickers、sorters 與 previewers。它的 README 目前提到需要 **Neovim 0.11.7 以上**，而且要有 **LuaJIT**。
 
-If you are on an older Neovim, upgrade first or choose a plugin that matches your version.
+如果你還在較舊的 Neovim 上，先升級，再決定要不要採用這類插件。
 
-### 5. Package management for tools
+### 5. 套件與工具管理
 
-A package manager such as `mason.nvim` helps keep language servers, DAP adapters, linters, and formatters consistent.
+像 `mason.nvim` 這類工具管理器，可以幫你統一安裝 LSP servers、DAP adapters、linters 與 formatters。
 
-That matters because a coding setup becomes fragile when every machine has a different toolchain.
+這很重要，因為一套 coding 環境最容易失控的地方，就是每台機器的工具版本都不一樣。
 
-The ideal pattern is:
+理想模式是：
 
-- install the editor plugin once
-- let the plugin manage tool binaries
-- pin versions or update deliberately
-- keep team setup documentation minimal and explicit
+- 插件只裝一次
+- 工具 binary 交給插件管理
+- 版本要嘛固定，要嘛有計畫地更新
+- 團隊設定文件保持精簡且明確
 
-### 6. Formatting as an automated habit
+### 6. 把格式化變成自動習慣
 
-Formatting should be boring.
+格式化應該要無感。
 
-A formatter plugin such as `conform.nvim` is useful because it can run on save and fall back to LSP formatting when needed. That makes code style consistent without turning the editor into a manual cleanup station.
+像 `conform.nvim` 這種格式化插件很實用，因為它可以在儲存時格式化，必要時也能 fallback 到 LSP 格式化。這樣可以維持程式風格一致，而不會讓編輯器變成手動整理格式的地方。
 
-A good default is:
+建議預設：
 
-- format on save
-- keep timeout short
-- use filetype-specific formatters
-- let LSP formatting serve as a fallback, not the first choice for everything
+- 儲存時自動格式化
+- timeout 不要太長
+- 不同 filetype 用對應 formatter
+- LSP formatting 作為 fallback，而不是萬用第一選擇
 
-### 7. Git integration where you edit
+### 7. Git 整合，直接在你編輯的地方看變更
 
-`gitsigns.nvim` brings Git awareness into the buffer itself.
+`gitsigns.nvim` 可以把 Git 資訊直接帶進 buffer。
 
-That is valuable because it lets you:
+這很有價值，因為它能讓你：
 
-- see changed lines while you code
-- stage or reset hunks quickly
-- inspect blame without leaving the buffer
-- understand the current diff context before you save
+- 編輯時直接看到變更行
+- 快速 stage 或 reset hunks
+- 不離開 buffer 就能看 blame
+- 在儲存前先理解目前 diff 的上下文
 
-For large codebases, this is one of the most immediately useful quality-of-life upgrades.
+對大型 codebase 來說，這是最立即有感的升級之一。
 
-### 8. Debugging when the editor is not enough
+### 8. 當編輯器不夠用時：除錯
 
-For serious coding work, you eventually need a debugger.
+真正的開發工作遲早會需要 debugger。
 
-`nvim-dap` gives Neovim Debug Adapter Protocol support so you can:
+`nvim-dap` 提供 Debug Adapter Protocol 支援，讓你可以：
 
-- launch applications
-- attach to running processes
-- set breakpoints
+- 啟動要除錯的應用程式
+- attach 到正在跑的程序
+- 設 breakpoints
 - step through code
-- inspect variables and stack frames
+- 檢視 variables 與 stack frames
 
-That makes Neovim viable for more than script editing; it becomes a full development console.
+這讓 Neovim 不只是寫腳本的工具，而是完整的開發控制台。
 
-## Recommended workflow for coding in Neovim
+## 寫程式的推薦流程
 
-A clean daily workflow looks like this:
+一個順手的日常流程會像這樣：
 
-1. **Open the project** in Neovim from the repository root.
-2. **Find the target file** with a fuzzy finder rather than manual path drilling.
-3. **Jump to the symbol** you need with LSP definitions or references.
-4. **Edit with motions and text objects** instead of cursor nudging.
-5. **Use diagnostics** to catch type or syntax mistakes early.
-6. **Format on save** so style does not become a separate task.
-7. **Review Git hunks** before committing.
-8. **Run tests** from a terminal split or an external terminal.
-9. **Debug with DAP** when the failure is behavioral, not textual.
+1. **從專案根目錄開啟專案**
+2. **用 fuzzy finder 找檔案**，不要手打完整路徑
+3. **用 LSP 的 definition / references 找到你要的 symbol**
+4. **用 motions 與 text objects 編輯**，少做游標微調
+5. **利用 diagnostics** 提早發現型別或語法問題
+6. **儲存時自動格式化**，讓 style 不再是額外工作
+7. **看 Git hunks** 再決定要不要 commit
+8. **在 terminal split 或外部終端跑測試**
+9. **當問題是行為而不是文字時，就用 DAP 除錯**
 
-That loop is the real productivity gain: open, locate, edit, verify, repeat.
+這個循環才是生產力的來源：打開、定位、修改、驗證、重複。
 
-## Practical keymaps worth having
+## 值得設定的實用 keymap
 
-You do not need a huge keymap layer. A small, consistent set is enough.
+你不需要很多 keymap，只需要一小組一致的。
 
-Good candidates:
+推薦候選：
 
-- `gd` → go to definition
-- `gr` → find references
-- `gi` → go to implementation
-- `K` → hover documentation
+- `gd` → 跳到 definition
+- `gr` → 找 references
+- `gi` → 跳到 implementation
+- `K` → 顯示 hover 文件
 - `<leader>rn` → rename symbol
 - `<leader>ca` → code action
-- `<leader>ff` → search files
-- `<leader>fg` → grep text across the project
-- `<leader>fb` → switch buffers
+- `<leader>ff` → 找檔案
+- `<leader>fg` → 在專案中全文搜尋
+- `<leader>fb` → 切換 buffers
 - `<leader>fS` → workspace symbols
-- `<leader>gg` → Git status or blame view
-- `<leader>db` → toggle breakpoint
-- `<leader>dc` → continue debugging
+- `<leader>gg` → Git status 或 blame
+- `<leader>db` → 切換 breakpoint
+- `<leader>dc` → 繼續除錯
 
-The exact keys do not matter as much as consistency. Pick a prefix and keep the same mental model across every machine.
+重點不在按鍵本身，而在一致性。選一個 prefix，然後在每台機器上都維持同樣的心智模型。
 
-## A compact starter config pattern
+## 一個精簡的 starter config 模式
 
-Here is a small pattern that works well as a starting point:
+這是一個不錯的起手式：
 
 ```lua
--- Basic editor ergonomics
+-- 基本編輯器手感
 vim.o.number = true
 vim.o.relativenumber = true
 vim.o.signcolumn = "yes"
@@ -233,113 +233,113 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.keymap.set(mode, lhs, rhs, { buffer = ev.buf, desc = desc })
     end
 
-    map("n", "gd", vim.lsp.buf.definition, "Go to definition")
-    map("n", "gr", vim.lsp.buf.references, "Find references")
-    map("n", "gi", vim.lsp.buf.implementation, "Go to implementation")
-    map("n", "K", vim.lsp.buf.hover, "Hover docs")
-    map("n", "<leader>rn", vim.lsp.buf.rename, "Rename symbol")
+    map("n", "gd", vim.lsp.buf.definition, "跳到定義")
+    map("n", "gr", vim.lsp.buf.references, "找 references")
+    map("n", "gi", vim.lsp.buf.implementation, "跳到 implementation")
+    map("n", "K", vim.lsp.buf.hover, "顯示說明")
+    map("n", "<leader>rn", vim.lsp.buf.rename, "重新命名")
     map("n", "<leader>ca", vim.lsp.buf.code_action, "Code action")
   end,
 })
 ```
 
-Then layer in the rest of the tooling gradually:
+接著再慢慢補上其他工具：
 
-- LSP servers for your languages
-- a fuzzy finder
+- 你常用語言的 LSP servers
+- fuzzy finder
 - Tree-sitter parsers
-- a formatter
+- formatter
 - Git signs
-- debugger support only for the languages you actually use
+- 只有在真的需要時才加的 debugger
 
-## What to optimize first
+## 應該先優化什麼
 
-If you are new to Neovim, optimize in this order:
+如果你剛開始用 Neovim，建議照這個順序：
 
-### 1. Editing speed
-Learn motions, visual mode, text objects, and macros before anything else.
+### 1. 編輯速度
+先學 motions、visual mode、text objects 與 macros，再看其他功能。
 
-### 2. Language navigation
-Add LSP and make sure definition, references, rename, and diagnostics work reliably.
+### 2. 語言導覽
+加上 LSP，確認 definition、references、rename、diagnostics 都穩定可用。
 
-### 3. Search and project movement
-Add a fuzzy finder and use it constantly.
+### 3. 搜尋與專案移動
+加 fuzzy finder，並且養成常用的習慣。
 
-### 4. Formatting and linting
-Make code style automatic.
+### 4. 格式化與 linting
+讓程式風格自動化。
 
-### 5. Git awareness
-Add inline diff and hunk operations.
+### 5. Git 感知
+補上 inline diff 與 hunk 操作。
 
-### 6. Debugging
-Add DAP once the basics feel natural.
+### 6. 除錯
+等基本操作熟了，再加 DAP。
 
-This order keeps the setup from becoming a pile of plugins before it becomes useful.
+這樣可以避免一開始就把設定堆成一坨，最後反而不好用。
 
-## Common mistakes
+## 常見錯誤
 
-### Too many plugins too early
-The fastest way to make Neovim miserable is to install everything at once.
+### 太早裝太多插件
+最快把 Neovim 變痛苦的方法，就是一次裝一堆。
 
-Start with core editing, LSP, search, and formatting. Add more only when a real workflow pain appears.
+先做好核心編輯、LSP、搜尋與格式化，再根據實際痛點逐步補強。
 
-### Conflicting formatters
-If multiple tools try to format the same filetype, save-time behavior becomes unpredictable.
+### 格式化工具互相打架
+如果同一個 filetype 有多個工具都在搶著格式化，儲存時行為就會變得不可預測。
 
-Choose one primary formatter path and document the fallback.
+選一條主要格式化路徑，並清楚寫下 fallback。
 
-### Keymaps without a system
-Random keymaps are hard to remember.
+### keymap 沒有系統
+隨機 keymap 很難記。
 
-Use a naming scheme by task class:
+建議按照工作類型分組：
 
-- navigation
-- search
-- refactor
-- diagnostics
-- git
-- debug
+- 導覽
+- 搜尋
+- 重構
+- 診斷
+- Git
+- 除錯
 
-### Forgetting server attach conditions
-Language-specific keymaps should generally exist only when an LSP client is active.
+### 忽略 attach 條件
+語言專用 keymap 通常只應該在 LSP client 真的啟動時才存在。
 
-`LspAttach` is the right place for that.
+`LspAttach` 就是放這些設定的好地方。
 
-### Ignoring version requirements
-Some plugin ecosystems assume newer Neovim versions.
+### 忽略版本需求
+有些插件生態系會直接假設你用的是比較新的 Neovim。
 
-Check the plugin README before adopting a stack, especially for search and completion tools.
+採用前先看 README，特別是搜尋與 completion 類工具。
 
-## A good default stack
+## 推薦的預設堆疊
 
-If you want one practical setup to start from, use this shape:
+如果你想先從一套實用方案開始，可以用這個組合：
 
-- **Neovim core** for editing
-- **native LSP** for language intelligence
-- **Tree-sitter** for parsing and highlighting
-- **Telescope** for search
-- **Mason** for tool installation
-- **Conform** for formatting
-- **Gitsigns** for inline Git awareness
-- **nvim-dap** for debugging
+- **Neovim core**：負責編輯
+- **原生 LSP**：負責語言智慧
+- **Tree-sitter**：負責解析與高亮
+- **Telescope**：負責搜尋
+- **Mason**：負責工具安裝
+- **Conform**：負責格式化
+- **Gitsigns**：負責 inline Git 感知
+- **nvim-dap**：負責除錯
 
-That combination is small enough to maintain and strong enough for real coding work.
+這個組合夠小，能維護；也夠強，足以應付真正的寫程式工作。
 
-## Final advice
+## 最後建議
 
-The best Neovim setup is the one you can keep in your head.
+最好的 Neovim 設定，是你能記得住的設定。
 
-If a plugin does not remove friction every week, delete it. If a keymap is hard to remember, simplify it. If a workflow needs a wiki page, the setup may already be too heavy.
+如果某個插件每週都沒有明顯減少你的摩擦，就刪掉它。若某個 keymap 太難記，就簡化它。若某個工作流程需要一整頁 wiki 才說得清楚，那這套設定可能已經太重了。
 
-For most developers, Neovim becomes excellent when it is tuned for three things:
+對大多數開發者來說，Neovim 變得好用，通常是因為它被調成了三件事：
 
-- **fast navigation**
-- **consistent automation**
-- **minimal cognitive overhead**
+- **快速導覽**
+- **一致自動化**
+- **最低心智負擔**
 
-Build for those, and the editor will disappear into the background while you focus on the code.
+只要你朝這三個方向優化，編輯器就會安靜地退到背景，讓你專心寫 code。
 
-## Sources
+## 來源
 
 - [Neovim LSP docs](https://neovim.io/doc/user/lsp.html)
 - [Neovim Tree-sitter docs](https://neovim.io/doc/user/treesitter.html)

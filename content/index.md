@@ -6,9 +6,9 @@ This is a blank Quartz installation.
 
 Currently this page is manage by yaji and jessehsu
 
-## Guides
+## 指南
 
-- [Coding with Neovim: a practical guide](productivity/neovim/)
+- [使用 Neovim 寫程式：實戰指南](productivity/neovim/)
 
 ## Getting started
 
