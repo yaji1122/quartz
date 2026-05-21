@@ -16,7 +16,7 @@ draft: false
 
 ## 文章
 
-- [使用 Neovim 寫程式：實戰指南](neovim/)
+- [Neovim 實戰指南系列](neovim/)
 
 ## 後續規劃
 
